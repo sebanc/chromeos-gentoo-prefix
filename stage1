@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+export SHELL="/bin/bash"
+export LC_ALL=C
+
+export HOME=/usr/local
+sudo mkdir -p $HOME
+sudo chown 1000:1000 /usr/local
+
+unset LD_LIBRARY_PATH
+
+curl -L https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh -o /tmp/bootstrap-prefix.sh
+sed -i -z 's@sys-devel/patch\n\t\tsys-devel/binutils-config@sys-devel/patch\n\t\tsys-libs/zlib\n\t\tsys-devel/binutils-config@g' /tmp/bootstrap-prefix.sh
+chmod 0755 /tmp/bootstrap-prefix.sh
+
+/tmp/bootstrap-prefix.sh /usr/local/gentoo stage1
+/tmp/bootstrap-prefix.sh /usr/local/gentoo stage2
+sed -i "s@'-static' '-static-pie' '-fno-PIE -no-pie'@'-static'@g" /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/binutils-*.ebuild
+for i in /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/*.ebuild; do j=$(basename $i); sed -i "s@EBUILD $j .*@EBUILD $j $(du -b $i | cut -f1) BLAKE2B $(b2sum $i | cut -d' ' -f1) SHA512 $(sha512sum $i | cut -d' ' -f1)@g" /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/Manifest; done
+/tmp/bootstrap-prefix.sh /usr/local/gentoo stage3
+
+/usr/local/gentoo/usr/bin/emerge prefix-toolkit
+mkdir /usr/local/bin
+cp /usr/local/gentoo/startprefix /usr/local/bin/startprefix
+
+echo '' > /usr/local/.finished
+
