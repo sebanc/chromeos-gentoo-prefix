@@ -7,7 +7,7 @@ if [ -f ../chromiumos-stage3/chromiumos_stage3.tar.gz ]; then
 	echo "Using local ChromiumOS Stage3"
 	cp ../chromiumos-stage3/chromiumos_stage3.tar.gz ./chromiumos_stage3.tar.gz
 else
-	curl -L $(curl -L -s "https://api.github.com/repos/sebanc/chromiumos-stage3/releases/latest" | grep browser_download_url | tr -d '"' | sed 's#browser_download_url: ##g') -o /chromiumos_stage3.tar.gz
+	curl -L $(curl -L -s "https://api.github.com/repos/sebanc/chromiumos-stage3/releases/latest" | grep browser_download_url | tr -d '"' | sed 's#browser_download_url: ##g') -o ./chromiumos_stage3.tar.gz
 fi
 tar xf ./chromiumos_stage3.tar.gz -C ./chroot
 
