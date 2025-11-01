@@ -23,6 +23,12 @@ mount --make-slave ./chroot/dev/pts
 mount -t tmpfs -o mode=1777 none ./chroot/dev/shm
 
 cp ./stage1 ./chroot/init
+if [ -f ./chromeos_gentoo_prefix.tar.gz ]; then
+	mkdir -p ./chroot/usr/local
+	tar zxf ./chromeos_gentoo_prefix.tar.gz -C ./chroot/usr/local
+	echo -e '#!/bin/bash\n\nbash' > ./chroot/init
+fi
+
 env -i PATH=/usr/sbin:/usr/bin:sbin:/bin chroot --userspec=1000:1000 ./chroot /init
 
 for ROOT in $(find /proc/*/root 2>/dev/null); do
