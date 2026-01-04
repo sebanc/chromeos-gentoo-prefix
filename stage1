@@ -11,7 +11,6 @@ sudo chown 1000:1000 /usr/local
 
 unset LD_LIBRARY_PATH
 export PREFIX_DISABLE_RAP="yes"
-export LATEST_TREE_YES=1
 
 curl -L https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh -o /tmp/bootstrap-prefix.sh
 sed -i -z 's@sys-devel/patch\n\t\tsys-devel/binutils-config@sys-devel/patch\n\t\tsys-libs/zlib\n\t\tsys-devel/binutils-config@g' /tmp/bootstrap-prefix.sh
