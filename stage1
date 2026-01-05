@@ -20,7 +20,7 @@ EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs 2" /tmp/bootstrap-prefix.sh /usr
 sed -i "s@'-static' '-static-pie' '-fno-PIE -no-pie'@'-static'@g" /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/binutils-*.ebuild
 for i in /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/*.ebuild; do j=$(basename $i); sed -i "s@EBUILD $j .*@EBUILD $j $(du -b $i | cut -f1) BLAKE2B $(b2sum $i | cut -d' ' -f1) SHA512 $(sha512sum $i | cut -d' ' -f1)@g" /usr/local/gentoo/var/db/repos/gentoo/sys-devel/binutils/Manifest; done
 echo -e "EMERGE_DEFAULT_OPTS=\"--jobs 2\"\nMAKEOPTS=\"--jobs 2\"\nUSE=\"alsa dbus gtk harfbuzz -llvm opengl openssl pulseaudio text vulkan wayland X\"\nVIDEO_CARDS=\"\"" > /usr/local/gentoo/etc/portage/make.conf/make.conf
-USE="openssl -reference samurai" /tmp/bootstrap-prefix.sh /usr/local/gentoo stage3
+USE="openssl pigz samurai -nls -reference" /tmp/bootstrap-prefix.sh /usr/local/gentoo stage3
 
 #rm /usr/local/gentoo/etc/portage/make.profile
 #ln -s /usr/local/gentoo/var/db/repos/gentoo/profiles/default/linux/amd64/23.0/split-usr/no-multilib/prefix/kernel-3.2+ /usr/local/gentoo/etc/portage/make.profile
