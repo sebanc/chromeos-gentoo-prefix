@@ -3,6 +3,8 @@
 rm -rf ./chroot
 mkdir ./chroot
 
+if [ -z ${1} ]; then stage=stage1; else stage="${1}"; fi
+
 if [ -f ../chromiumos-stage3/chromiumos_stage3.tar.gz ]; then
 	echo "Using local ChromiumOS Stage3"
 	cp ../chromiumos-stage3/chromiumos_stage3.tar.gz ./chromiumos_stage3.tar.gz
@@ -22,7 +24,7 @@ mount --bind /dev/pts ./chroot/dev/pts
 mount --make-slave ./chroot/dev/pts
 mount -t tmpfs -o mode=1777 none ./chroot/dev/shm
 
-cp ./${1} ./chroot/init
+cp ./${stage} ./chroot/init
 if [ -f ./chromeos_gentoo_prefix.tar.gz ]; then
 	mkdir -p ./chroot/usr/local
 	tar zxf ./chromeos_gentoo_prefix.tar.gz -C ./chroot/usr/local
@@ -55,7 +57,7 @@ if mountpoint -q ./chroot/sys; then umount ./chroot/sys; fi
 if mountpoint -q ./chroot/proc; then umount ./chroot/proc; fi
 
 if [ -f ./chroot/usr/local/.finished ]; then
-	if [ "${1}" == "stage1" ]; then suffix="_mini"; fi
+	if [ "${stage}" == "stage1" ]; then suffix="_mini"; fi
 	rm -f ./chroot/usr/local/.finished ./chromeos_gentoo_prefix${suffix}.tar.gz ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz
 	tar zcf ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz -C ./chroot/usr/local .
 	ln -s ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz ./chromeos_gentoo_prefix${suffix}.tar.gz

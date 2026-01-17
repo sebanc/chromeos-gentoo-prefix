@@ -13,10 +13,10 @@ curl -L $(curl -L -s https://api.github.com/repos/sebanc/chromeos-gentoo-prefix/
 tar zxf /tmp/chromeos-gentoo-prefix.tar.gz -C /usr/local
 
 unset LD_LIBRARY_PATH
-if [ ! -d /home/runner/work ]; then NTHREADS=$(( $(grep -c processor /proc/cpuinfo) / 4 )); else NTHREADS=4; fi
-if [ ${NTHREADS} -lt 1 ]; then NTHREADS=1; fi
+if [ ! -d /home/runner/work ]; then NTHREADS=$(( $(grep -c processor /proc/cpuinfo) / 4 )); if [ ${NTHREADS} -lt 1 ]; then NTHREADS=1; fi; else NTHREADS=4; fi
 
 echo -e "EMERGE_DEFAULT_OPTS=\"--jobs 2\"\nMAKEOPTS=\"--jobs 4\"\nUSE=\"alsa dbus gtk harfbuzz -nls opengl openssl pulseaudio text vulkan wayland X\"" > /usr/local/gentoo/etc/portage/make.conf/make.conf
+rm -f /usr/local/gentoo/etc/portage/package.use/gcc
 EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs ${NTHREADS}" /usr/local/gentoo/usr/bin/emerge -uDN @world dev-cpp/gtest media-video/pipewire net-libs/libproxy net-misc/openssh x11-base/xorg-drivers x11-base/xwayland
 ln -s libproxy/libpxbackend-1.0.so /usr/local/gentoo/usr/lib64/
 
