@@ -1,14 +1,9 @@
-name: Build ChromeOS Gentoo prefix using Github Actions
+name: Build ChromeOS Gentoo prefix
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 22 1 * *"
-  push:
-    branches:
-      - 'main'
-    paths-ignore:
-      - 'README.md'
-      - 'BUILDING.md'
+    workflow_run:
+        workflows: ['Build ChromeOS Gentoo prefix mini']
+        types: [completed]
 concurrency:
   group: environment-${{ github.ref }}
   cancel-in-progress: true
@@ -32,7 +27,7 @@ jobs:
       - name: Checkout ChromeOS Gentoo prefix source code
         uses: actions/checkout@v4
       - name: Build ChromeOS Gentoo prefix
-        run: sudo ./build.sh
+        run: sudo ./build.sh stage2
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

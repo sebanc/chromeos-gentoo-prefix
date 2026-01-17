@@ -1,0 +1,79 @@
+name: Build ChromeOS Gentoo prefix mini
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22 1 * *"
+  push:
+    branches:
+      - 'main'
+    paths-ignore:
+      - 'README.md'
+      - 'BUILDING.md'
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-chromeos-gentoo-prefix-mini:
+    name: ChromeOS Gentoo prefix mini
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+      - name: Display disk space
+        run: |
+          echo "Free space:"
+          df -h
+      - name: Free some disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt clean
+      - name: Checkout ChromeOS Gentoo prefix source code
+        uses: actions/checkout@v4
+      - name: Build ChromeOS Gentoo prefix
+        run: sudo ./build.sh stage1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromeos-gentoo-prefix-mini-build
+          path: chromeos_gentoo_prefix_mini_*.tar.gz
+          if-no-files-found: error
+  release:
+    name: Make a ChromeOS Gentoo prefix mini release
+    permissions:
+      contents: write
+    needs: build-chromeos-gentoo-prefix-mini
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+      - name: Display disk space
+        run: |
+          echo "Free space:"
+          df -h
+      - name: Download built artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: chromeos-gentoo-prefix-mini-build
+      - name: Generate release details
+        run: |
+          RELEASE_FILE=$(ls chromeos_gentoo_prefix_mini_*.tar.gz)
+          RELEASE_DATE=$(echo "$RELEASE_FILE" | cut -d'.' -f1 | cut -d'_' -f4)
+          echo "Found ChromeOS Gentoo prefix release: ${RELEASE_FILE} with date ${RELEASE_DATE}"
+          echo "RELEASE_FILE=chromeos_gentoo_prefix_mini_${RELEASE_DATE}.tar.gz" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${RELEASE_DATE}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=ChromeOS Gentoo prefix mini ${RELEASE_DATE}" >> $GITHUB_ENV
+          echo "RELEASE_SHA256=$(sha256sum chromeos_gentoo_prefix_mini_${RELEASE_DATE}.tar.gz | cut -d' ' -f1)" >> $GITHUB_ENV
+      - name: Create a release and upload artifacts as assets
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ env.RELEASE_FILE }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          tag: "${{ env.RELEASE_TAG }}"
+          name: "${{ env.RELEASE_NAME }}"
+          commit: "${{ github.ref_name }}"
+          body: "${{ github.event.head_commit.message }}\n\nrelease_sha256sum=${{ env.RELEASE_SHA256 }}\n"

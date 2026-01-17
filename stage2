@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+
+export SHELL="/bin/bash"
+export LC_ALL=C
+
+export HOME=/usr/local
+sudo mkdir -p $HOME
+sudo chown 1000:1000 /usr/local
+
+curl -L $(curl -L -s https://api.github.com/repos/sebanc/chromeos-gentoo-prefix/releases | jq ".[] | select(.name==$(curl -L -s https://api.github.com/repos/sebanc/chromeos-gentoo-prefix/releases | jq '.[] | .name | select(contains("mini"))' | head -1))" | grep browser_download_url | tr -d '"' | sed "s#browser_download_url: ##g") -o /tmp/chromeos-gentoo-prefix.tar.gz
+tar zxf /tmp/chromeos-gentoo-prefix.tar.gz -C /usr/local
+
+unset LD_LIBRARY_PATH
+if [ ! -d /home/runner/work ]; then NTHREADS=$(( $(grep -c processor /proc/cpuinfo) / 4 )); else NTHREADS=4; fi
+if [ ${NTHREADS} -lt 1 ]; then NTHREADS=1; fi
+
+echo -e "EMERGE_DEFAULT_OPTS=\"--jobs 2\"\nMAKEOPTS=\"--jobs 4\"\nUSE=\"alsa dbus gtk harfbuzz -nls opengl openssl pulseaudio text vulkan wayland X\"" > /usr/local/gentoo/etc/portage/make.conf/make.conf
+EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs ${NTHREADS}" /usr/local/gentoo/usr/bin/emerge -uDN @world dev-cpp/gtest media-video/pipewire net-libs/libproxy net-misc/openssh x11-base/xorg-drivers x11-base/xwayland
+ln -s libproxy/libpxbackend-1.0.so /usr/local/gentoo/usr/lib64/
+
+/usr/local/bin/startprefix <<SOMMELIER
+git clone -b main https://chromium.googlesource.com/chromiumos/platform2.git /tmp/cros_tools
+cd /tmp/cros_tools
+mkdir -p ./vm_tools/sommelier/out
+cd ./vm_tools/sommelier/out
+meson setup -Dprefix=/usr/local/gentoo -Dlibdir=/usr/local/gentoo/usr/lib64 -Dbuildtype=release -Dxwayland_path=/usr/local/gentoo/usr/bin/Xwayland -Dxwayland_gl_driver_path=/usr/local/gentoo/usr/lib64/dri ..
+ninja
+ninja install
+cd /
+rm -rf /tmp/cros_tools
+SOMMELIER
+
+rm -rf /usr/local/gentoo/tmp/* /usr/local/gentoo/var/cache/distfiles/*
+
+echo '' > /usr/local/.finished
+

@@ -22,7 +22,7 @@ mount --bind /dev/pts ./chroot/dev/pts
 mount --make-slave ./chroot/dev/pts
 mount -t tmpfs -o mode=1777 none ./chroot/dev/shm
 
-cp ./stage1 ./chroot/init
+cp ./${1} ./chroot/init
 if [ -f ./chromeos_gentoo_prefix.tar.gz ]; then
 	mkdir -p ./chroot/usr/local
 	tar zxf ./chromeos_gentoo_prefix.tar.gz -C ./chroot/usr/local
@@ -55,9 +55,10 @@ if mountpoint -q ./chroot/sys; then umount ./chroot/sys; fi
 if mountpoint -q ./chroot/proc; then umount ./chroot/proc; fi
 
 if [ -f ./chroot/usr/local/.finished ]; then
-	rm -f ./chroot/usr/local/.finished ./chromeos_gentoo_prefix.tar.gz ./chromeos_gentoo_prefix_"$(date +"%Y%m%d")".tar.gz
-	tar zcf ./chromeos_gentoo_prefix_"$(date +"%Y%m%d")".tar.gz -C ./chroot/usr/local .
-	ln -s ./chromeos_gentoo_prefix_"$(date +"%Y%m%d")".tar.gz ./chromeos_gentoo_prefix.tar.gz
-	chown ${SUDO_UID}:$(id -g ${SUDO_UID}) ./chromeos_gentoo_prefix.tar.gz ./chromeos_gentoo_prefix_"$(date +"%Y%m%d")".tar.gz
+	if [ "${1}" == "stage1" ]; then suffix="_mini"; fi
+	rm -f ./chroot/usr/local/.finished ./chromeos_gentoo_prefix${suffix}.tar.gz ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz
+	tar zcf ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz -C ./chroot/usr/local .
+	ln -s ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz ./chromeos_gentoo_prefix${suffix}.tar.gz
+	chown ${SUDO_UID}:$(id -g ${SUDO_UID}) ./chromeos_gentoo_prefix${suffix}.tar.gz ./chromeos_gentoo_prefix${suffix}_"$(date +"%Y%m%d")".tar.gz
 fi
 
