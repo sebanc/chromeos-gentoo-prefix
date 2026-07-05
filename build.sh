@@ -21,6 +21,7 @@ mount --make-slave ./chroot/dev
 mount --bind /dev/pts ./chroot/dev/pts
 mount --make-slave ./chroot/dev/pts
 mount -t tmpfs -o mode=1777 none ./chroot/dev/shm
+mount -t tmpfs -o mode=1777 none ./chroot/tmp
 
 cp ./update ./chroot/init
 if [ -f ./chromeos_gentoo_prefix.tar.gz ]; then
@@ -48,6 +49,7 @@ for ROOT in $(find /proc/*/root 2>/dev/null); do
 done
 sleep 5
 
+if mountpoint -q ./chroot/tmp; then umount ./chroot/tmp; fi
 if mountpoint -q ./chroot/dev/shm; then umount ./chroot/dev/shm; fi
 if mountpoint -q ./chroot/dev/pts; then umount ./chroot/dev/pts; fi
 if mountpoint -q ./chroot/dev; then umount ./chroot/dev; fi

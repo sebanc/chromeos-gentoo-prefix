@@ -6,8 +6,9 @@ export SHELL="/bin/bash"
 export LC_ALL=C
 
 export HOME=/usr/local
-sudo mkdir -p $HOME
-sudo chown 1000:1000 /usr/local
+sudo rm -rf $HOME
+sudo mkdir $HOME
+sudo chown 1000:1000 $HOME
 
 curl -L $(curl -L -s https://api.github.com/repos/sebanc/chromeos-gentoo-prefix/releases/latest | grep browser_download_url | tr -d '"' | sed 's#browser_download_url: ##g') -o /tmp/chromeos-gentoo-prefix.tar.gz
 tar zxf /tmp/chromeos-gentoo-prefix.tar.gz -C /usr/local
