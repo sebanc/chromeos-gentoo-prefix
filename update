@@ -31,8 +31,7 @@ ln -s /usr/local/gentoo/var/db/repos/gentoo/profiles/default/linux/amd64/17.0/no
 
 /usr/local/gentoo/usr/bin/emerge --sync --quiet
 echo -e "EMERGE_DEFAULT_OPTS=\"--jobs 2\"\nMAKEOPTS=\"--jobs 4\"\nUSE=\"alsa dbus gtk harfbuzz -nls opengl openssl pulseaudio text vulkan wayland X\"" > /usr/local/gentoo/etc/portage/make.conf/make.conf
-EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs ${NTHREADS}" /usr/local/gentoo/usr/bin/emerge llvm-core/clang sys-libs/glibc dev-build/cmake
-#EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs ${NTHREADS}" /usr/local/gentoo/usr/bin/emerge -uDN @world dev-cpp/gtest media-video/pipewire net-libs/libproxy net-misc/openssh x11-base/xorg-drivers x11-base/xwayland
+EMERGE_DEFAULT_OPTS="--jobs 2" MAKEOPTS="--jobs ${NTHREADS}" /usr/local/gentoo/usr/bin/emerge -uDN @world dev-cpp/gtest media-video/pipewire net-libs/libproxy net-misc/openssh x11-base/xorg-drivers x11-base/xwayland
 rm -f /usr/local/gentoo/usr/lib64/libpxbackend-1.0.so
 ln -s libproxy/libpxbackend-1.0.so /usr/local/gentoo/usr/lib64/
 
