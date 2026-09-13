@@ -47,7 +47,8 @@ cd /
 rm -rf /tmp/cros_tools
 SOMMELIER
 
-rm -rf /usr/local/gentoo/tmp/* /usr/local/gentoo/var/cache/distfiles/*
+/usr/local/gentoo/usr/bin/emerge --depclean
+rm -rf /usr/local/gentoo/tmp/* /usr/local/gentoo/var/cache/distfiles/* /usr/local/gentoo/var/tmp/*
 
 echo '' > /usr/local/.finished
 
